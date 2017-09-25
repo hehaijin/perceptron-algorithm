@@ -1,0 +1,9 @@
+The code is in Python 3.6.
+
+For multiclass classification, for each class label,I train a binary classfication of this label and all other class labels combined. The classification result is the classification function that gives the biggest result.
+
+For original data, 10 fold cross-validataion linear classification takes 31 seconds, and the average accuracy is 0.9777
+
+For Harr reduced data, the time goes down as fewer dimensions are kepted, and the accuracy is algo going down.
+
+When reduced to only 2 dimensions, it takes 15 seconds, and the average accuracy is 0.46. 

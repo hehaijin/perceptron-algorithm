@@ -42,8 +42,8 @@ def trainingBinary(data):
 		W=updateParameter(W,data[i])
 	diffsum=validateBinary(W,data)
 	repeat=0
-	print("first round diff "+ str(diffsum))
-	while diffsum >20 and repeat <10:
+	#print("first round diff "+ str(diffsum))
+	while diffsum >20 and repeat <0:
 		for i in range(len(data)):
 			W=updateParameter(W,data[i])
 		diffsum=validateBinary(W,data)
@@ -113,43 +113,77 @@ def validateMultiple(W, data):
 
 
 
+def readData():
+	data=[]
+	with open('data.txt', newline='') as csvfile:
+			for line in csvfile:
+				sp=re.split(" +",line)
+				p=[]
+				for i in range(len(sp)-1):
+					p.append(float(sp[i+1]))
+				data.append(p)
+	return data
+			
+			
+			
+def classify(data):
+					
+	start_time=time.time()
+	#10 fold cross validation
+	accurancy=[]
+	for i in range(10):
+		
+		training=[]
+		testing=[]
+		for j in range(len(data)):
+			if j%10 ==i:
+				testing.append(data[j])
+			else: 
+				training.append(data[j])
+		W=trainingMultiple(training)
+		
+		c=validateMultiple(W,testing)
+		#print("validation accurancy "+ str(c))
+		accurancy.append(c)
+	avg=0
+	for i in range(10):
+		avg=avg+accurancy[i]	
+	avg=avg/10	
+	print("the avarage accurancy of 10 fold cross validation is "+ str(avg)) 	
+	print("time taken is "+ str(time.time()-start_time))
+
+#use harr transform to recude data dimension
+def harrReduced(data,n):
+	data=np.array(data)
+	N=[8,8,4,4,2,2,2,2]
+	N=np.array(N)
+	Haar=[[1,1,1,1,1,1,1,1],[1,1,1,1,-1,-1,-1,-1],[1,1,-1,-1,0,0,0,0],[0,0,0,0,1,1,-1,-1],[1,-1,0,0,0,0,0,0],[0,0,1,-1,0,0,0,0],[0,0,0,0,1,-1,0,0],[0,0,0,0,0,0,1,-1]]
+	Haar=np.array(Haar)
+	data1=np.dot(data[:,1:],Haar.T)
+	#print(data1[0])
+	data1=data1/N
+	#print(data1[0])
+	data2=data1[:,0:n]
+	data3=np.concatenate((data[:,0:1],data2),axis=1)
+	#print(data3)
+	return data3
 
 
-data=[]
-with open('data.txt', newline='') as csvfile:
-		for line in csvfile:
-			sp=re.split(" +",line)
-			p=[]
-			for i in range(len(sp)-1):
-				p.append(float(sp[i+1]))
-			data.append(p)
-print("total data points")
-print(len(data))		
-start_time=time.time()
 
 
-#10 fold cross validation
-accurancy=[]
-for i in range(10):
-	
-	training=[]
-	testing=[]
-	for j in range(len(data)):
-		if j%10 ==i:
-			testing.append(data[j])
-		else: 
-			training.append(data[j])
-	W=trainingMultiple(training)
-	
-	c=validateMultiple(W,testing)
-	print("validation accurancy "+ str(c))
-	accurancy.append(c)
-avg=0
-for i in range(10):
-	avg=avg+accurancy[i]	
-avg=avg/10
-	
-print("the avarage accurancy of 10 fold cross validation is "+ str(avg)) 	
+#starting the execution
 
-print("time taken is "+ str(time.time()-start_time))
+
+data=readData()
+#print(data)
+print("original data")
+classify(data)
+for i in range(7,1,-1):
+	data2=harrReduced(data,i)
+	print("on reduced data to dimension "+ str(i))
+	classify(data2)
+
+
+
+
 
